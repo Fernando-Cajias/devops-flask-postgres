@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres:17-alpine
+    container_name: postgresdb
+    environment:
+      POSTGRES_DB: empresa
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@correo.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+  app:
+    container_name: flaskapp
+    # --- OPCIÓN 1: Desarrollo local rápido (descomentar para compilar localmente) ---
+    build: .
+    
+    # --- OPCIÓN 2: Usar la imagen de GHCR (Descomenta esto para la Actividad 6 y 7, y comenta la línea build) ---
+    # image: ghcr.io/fernando-cajias/devops-flask-postgres:2.0.0
+    
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=empresa
+      - DB_USER=admin
+      - DB_PASSWORD=admin123
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
